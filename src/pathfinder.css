@@ -1,0 +1,21 @@
+.control-panel {
+    width: 100%;
+    height: 4em;
+    background: #07696d;
+}
+
+
+.display-panel {
+    width: 100%;
+    height: 6em;
+    background: white;
+    border-bottom: 1px solid royalblue;
+}
+
+.grid-container {
+    margin: 10px;
+}
+
+.grid-row {
+    
+}
