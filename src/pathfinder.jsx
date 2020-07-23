@@ -3,9 +3,9 @@ import Node from './node'
 import './pathfinder.css'
 import * as dijkstra from './algorithms/dijkstra'
 
-const START_ROW = 10;
-const START_COL = 5;
-const TARGET_ROW = 10;
+const START_ROW = 1;
+const START_COL = 1;
+const TARGET_ROW = 15;
 const TARGET_COL = 20;
 const walls = new Set();
 
@@ -15,6 +15,9 @@ const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 const PATH_NODE = 5;
+
+const ANIMATION_MAX_SPEED = 105;
+let ANIMATION_SPEED = 10;
 
 export default class Pathfinder extends React.Component {
     constructor(props) {
@@ -26,23 +29,12 @@ export default class Pathfinder extends React.Component {
         this.refGrid = [];
     }
 
-    // createNode(row, col) {
-    //     return {
-    //         row,
-    //         col,
-    //         isStart: row === START_ROW && col === START_COL,
-    //         isTarget: row === TARGET_ROW && col === TARGET_COL,
-    //         distance: Infinity,
-    //         visited: false,
-    //         isWall: false,
-    //         previous: null,
-    //     };
-    // }
+    setAnimationSpeed(event) {
+        let speed = event.target.value;
+        ANIMATION_SPEED = ANIMATION_MAX_SPEED - speed;
+    }
 
-    createNode(row, col) {
-        const node_t = (row === START_ROW && col === START_COL) ? START_NODE : 
-                    (row === TARGET_ROW && col === TARGET_COL) ? TARGET_NODE :
-                    EMPTY_NODE;
+    createNode(row, col, node_t = EMPTY_NODE) { 
         return {
             row: row,
             col: col,
@@ -52,13 +44,18 @@ export default class Pathfinder extends React.Component {
         };
     }
 
+    // clear all walls & visited cells
+    // also create refs to cells
     initGrid() {
         const grid = [];
         for (let row = 0; row < 20; row++) {
             const currentRow = [];
             const refList = [];
             for (let col = 0; col < 50; col++) {
-                currentRow.push(this.createNode(row, col));
+                const type = (row === START_ROW && col === START_COL) ? START_NODE : 
+                            (row === TARGET_ROW && col === TARGET_COL) ? TARGET_NODE :
+                            EMPTY_NODE;
+                currentRow.push(this.createNode(row, col, type));
                 refList.push(React.createRef());
             }
             grid.push(currentRow);
@@ -67,19 +64,22 @@ export default class Pathfinder extends React.Component {
         return grid;
     }
 
+    // clear all walls & visited cells
     resetGrid() {
-        this.setState({grid: this.initGrid()});
-    }
-
-    getNewGridWithWallToggled(grid, row, col) {
-        const newGrid = grid.slice();
-        const node = newGrid[row][col];
-        const newNode = {
-            ...node,
-            isWall: !node.isWall,
-        };
-        newGrid[row][col] = newNode;
-        return newGrid;
+        const grid = [];
+        walls.clear();
+        for (let row = 0; row < 20; row++) {
+            const currentRow = [];
+            for (let col = 0; col < 50; col++) {
+                const type = (row === START_ROW && col === START_COL) ? START_NODE : 
+                            (row === TARGET_ROW && col === TARGET_COL) ? TARGET_NODE :
+                            EMPTY_NODE;
+                currentRow.push(this.createNode(row, col, type));
+                this.refGrid[row][col].current.updateNodeType(type);
+            }
+            grid.push(currentRow);
+        }
+        this.setState({grid: grid});
     }
 
     componentDidMount() {
@@ -93,9 +93,22 @@ export default class Pathfinder extends React.Component {
         return true;
     }
 
-    // handleMouseDown(row, col) {
-    //     this.refGrid[row][col].current.updateNodeType(WALL_NODE);
-    // }
+    updateCellType(row, col, type) {
+        const newGrid = [];
+        const grid = this.state.grid;
+        for (let i = 0; i < grid.length; i++) {
+            const currentRow = [];
+            for (let j = 0; j < grid[0].length; j++) {
+                if (i === row && j === col) {
+                    currentRow.push(this.createNode(row, col, type));
+                } else {
+                    currentRow.push(grid[i][j]);
+                }
+            }
+            newGrid.push(currentRow);
+        }
+        this.setState({grid: newGrid});
+    }
 
     // use a set to keep track of all mouseovered nodes
     // and change state at mouseup
@@ -104,16 +117,17 @@ export default class Pathfinder extends React.Component {
         if ((row === START_ROW && col === START_COL) || (row === TARGET_ROW && col === TARGET_COL)) {
             return;
         }
-        const newGrid = this.getNewGridWithWallToggled(this.state.grid, row, col);
-        //this.setState({grid: newGrid, mouseIsPressed: true});
-        this.state.grid = newGrid;
 
         if (walls.has(row * 50 + col)) {
             walls.delete(row * 50 + col);
-            document.getElementById(`node-${row}-${col}`).classList.remove('node-mouseover');
+            //this.state.grid[row][col].type = EMPTY_NODE;
+            this.updateCellType(row, col, EMPTY_NODE);
+            this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
         } else {
             walls.add(row * 50 + col);
-            document.getElementById(`node-${row}-${col}`).className = 'node node-mouseover';
+            //this.state.grid[row][col].type = WALL_NODE;
+            this.updateCellType(row, col, WALL_NODE);
+            this.refGrid[row][col].current.updateNodeType(WALL_NODE);
         }
     }
 
@@ -123,15 +137,16 @@ export default class Pathfinder extends React.Component {
             return;
         }
         
-        // const newGrid = this.getNewGridWithWallToggled(this.state.grid, row, col);
-        this.state.grid[row][col].isWall = !this.state.grid[row][col].isWall;
-        // document.getElementById(`node-${row}-${col}`).className = 'node node-mouseover';
         if (walls.has(row * 50 + col)) {
             walls.delete(row * 50 + col);
-            document.getElementById(`node-${row}-${col}`).classList.remove('node-mouseover');
+            //this.state.grid[row][col].type = EMPTY_NODE;
+            this.updateCellType(row, col, EMPTY_NODE);
+            this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
         } else {
             walls.add(row * 50 + col);
-            document.getElementById(`node-${row}-${col}`).className = 'node node-mouseover';
+            //this.state.grid[row][col].type = WALL_NODE;
+            this.updateCellType(row, col, WALL_NODE);
+            this.refGrid[row][col].current.updateNodeType(WALL_NODE);
         }
     }
 
@@ -148,8 +163,7 @@ export default class Pathfinder extends React.Component {
             setTimeout(() => {
                 const node = visited[i];
                 if (i > 0 && i < visited.length - 1) {
-                    // document.getElementById(`node-${node.row}-${node.col}`).classList.remove('node-mouseover');
-                    document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
+                    this.refGrid[node.row][node.col].current.updateNodeType(VISITED_NODE);
                 }
                 // show shortest path
                 if (i === visited.length - 1) {
@@ -157,14 +171,14 @@ export default class Pathfinder extends React.Component {
                         for (let j = 1; j < path.length - 1; j++) {
                             const pathnode = path[j];
                             setTimeout(() => {
-                                document.getElementById(`node-${pathnode.row}-${pathnode.col}`).className = 'node node-path';
-                            }, j * 50)
+                                this.refGrid[pathnode.row][pathnode.col].current.updateNodeType(PATH_NODE);
+                            }, j * ANIMATION_SPEED * 5)
                             
                         }
                     }, 500);
                     
                 }
-            }, i * 10);
+            }, i * ANIMATION_SPEED);
         }
     }
 
@@ -180,6 +194,7 @@ export default class Pathfinder extends React.Component {
                 <button onClick={() => this.runDijkstra()}>Depth First Search</button>
                 <button onClick={() => this.runDijkstra()}>Bidirectional BFS</button>
                 <button onClick={() => this.resetGrid()}>Reset Grid</button>
+                <input type="range" min="70" max="100" className="slider" defaultValue="95" onChange={(e) => this.setAnimationSpeed(e)}></input>
             </div>
             <div className="display-panel">
                 <p>Start Cell</p>
@@ -192,15 +207,13 @@ export default class Pathfinder extends React.Component {
                     return (
                         <div key={rowIndex} className="grid-row">
                             {row.map((node, nodeIndex) => {
-                                const {row, col, isStart, isTarget, isWall} = node;
+                                const {row, col, type} = node;
                                 return (
                                     <Node 
                                         key={nodeIndex}
                                         row = {row}
                                         col = {col}
-                                        isStart={isStart} 
-                                        isTarget={isTarget} 
-                                        isWall={isWall}
+                                        type={type}
                                         mouseIsPressed={mouseIsPressed}
                                         onMouseDown={(row, col) => this.handleMouseDown(row, col)}
                                         onMouseEnter={(row, col) => this.handleMouseEnter(row, col)}

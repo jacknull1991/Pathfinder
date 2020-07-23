@@ -20,16 +20,39 @@
 .control-panel button {
     height: 36px;
     border-radius: 5px;
-    background: #07696d;
-    border: 2px solid turquoise;
+    background: white;
+    border: 2px solid rgb(224, 64, 64);
     margin-left: 10px;
     font-size: 1em;
     font-weight: 800;
-    color: white;
+    color: #07696d;
     outline: none;
     cursor: pointer;
 }
 
+.control-panel .slider {
+    margin-left: 50px;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 150px;
+    height: 12px;
+    background: white;
+    outline: none;
+    opacity: 1.0;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 5px;
+}
+
+.control-panel .slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: turquoise;
+    border-radius: 50%;
+    cursor: pointer; 
+}
 
 .display-panel {
     width: 100%;

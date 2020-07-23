@@ -1,3 +1,5 @@
+const WALL_NODE = 3;
+const VISITED_NODE = 4;
 
 export function dijkstra(grid, start, target) {
     // this holds all nodes in the order we visited them
@@ -8,14 +10,14 @@ export function dijkstra(grid, start, target) {
         sortByDistance(unvisited); // prob should use min-heap
         const next = unvisited.shift();
         // handles walls
-        if (next.isWall) continue;
+        if (next.type === WALL_NODE) continue;
         // cannot move anywhere, stop
         if (next.distance === Infinity) {
             const path = [];
             return {visited, path};
         }
 
-        next.visited = true;
+        next.type = 4;
         visited.push(next);
         // reach target, stop
         if (next === target) {
@@ -58,7 +60,7 @@ function getUnvisitedNeighbors(curr, grid) {
     if (col > 0) neighbors.push(grid[row][col - 1]);
     if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);
 
-    return neighbors.filter(neighbor => !neighbor.visited)
+    return neighbors.filter(neighbor => neighbor.type !== VISITED_NODE)
 }
 
 function getShortestPath(node, path) {
