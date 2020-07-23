@@ -1,8 +1,19 @@
 .node {
-    width: 25px;
-    height: 25px;
-    outline: 1px solid rgb(148, 209, 230);
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+    min-height: 26px;
+    border: 1px solid rgb(148, 209, 230);
+    border-top: 0;
+    border-left: 0;
     display: inline-block;
+    box-sizing: border-box;
+}
+.node.first-row {
+    border-top: 1px solid rgb(148, 209, 230);
+}
+.node.first-col {
+    border-left: 1px solid rgb(148, 209, 230);
 }
 
 .node-start {
@@ -10,15 +21,36 @@
 }
 
 .node-target {
-    background-color: rgb(233, 248, 27);
+    background-color: rgb(245, 241, 7);
+}
+
+.node-mouseover {
+    background-color: rgb(145, 117, 100);
+}
+
+.node-path {
+    animation-name: poppath;
+    animation-duration: .4s;
+    animation-timing-function: ease-out;
+    animation-delay: 0;
+    animation-direction: alternate;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
 }
 
 .node-wall {
-    background-color: saddlebrown;
+    animation-name: popwalls;
+    animation-duration: .4s;
+    animation-timing-function: ease-out;
+    animation-delay: 0;
+    animation-direction: alternate;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
 }
 
 .node-visited {
-    background-color: turquoise;
     animation-name: growshrink;
     animation-duration: 1s;
     animation-timing-function: ease-out;
@@ -32,7 +64,7 @@
 @keyframes growshrink {
     0% {
         transform: scale(0.3);
-        background-color: turquoise;
+        background-color: rgb(64, 224, 117);
         border-radius: 100%;
     }
     50% {
@@ -40,10 +72,38 @@
     }
     75% {
         transform: scale(1.3);
-        
+        background-color: rgb(34, 173, 238);
     }
     100% {
         transform: scale(1.0);
-        background-color: rgb(64, 165, 224);
+        background-color: rgb(64, 128, 224);
+    }
+}
+
+@keyframes popwalls {
+    0% {
+        transform: scale(0.3);
+        background-color: rgb(70, 58, 50);
+    }
+    75% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1.0);
+        background-color: rgb(70, 58, 50);
+    }
+}
+
+@keyframes poppath {
+    0% {
+        transform: scale(0.6);
+        background-color: rgb(9, 255, 0);
+    }
+    75% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1.0);
+        background-color: rgb(9, 255, 0);
     }
 }

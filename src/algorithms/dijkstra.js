@@ -10,12 +10,19 @@ export function dijkstra(grid, start, target) {
         // handles walls
         if (next.isWall) continue;
         // cannot move anywhere, stop
-        if (next.distance === Infinity) return visited;
+        if (next.distance === Infinity) {
+            const path = [];
+            return {visited, path};
+        }
 
         next.visited = true;
         visited.push(next);
         // reach target, stop
-        if (next === target) return visited;
+        if (next === target) {
+            const path = [];
+            getShortestPath(target, path);
+            return {visited, path};
+        }
         updateNeighbors(next, grid);
     }
 }
@@ -35,7 +42,7 @@ function sortByDistance(nodes) {
 }
 
 function updateNeighbors(curr, grid) {
-    const neighbors = getNeighbors(curr, grid);
+    const neighbors = getUnvisitedNeighbors(curr, grid);
     neighbors.forEach((n) => {
         n.distance = curr.distance + 1;
         n.previous = curr;
@@ -43,7 +50,7 @@ function updateNeighbors(curr, grid) {
 }
 
 // get all unvisited neighbors
-function getNeighbors(curr, grid) {
+function getUnvisitedNeighbors(curr, grid) {
     const neighbors = [];
     const {row, col} = curr;
     if (row > 0) neighbors.push(grid[row - 1][col]);
@@ -54,3 +61,9 @@ function getNeighbors(curr, grid) {
     return neighbors.filter(neighbor => !neighbor.visited)
 }
 
+function getShortestPath(node, path) {
+    path.unshift(node);
+    if (node.previous !== null) {
+        getShortestPath(node.previous, path);
+    }
+}
