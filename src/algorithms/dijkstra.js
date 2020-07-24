@@ -17,7 +17,7 @@ export function dijkstra(grid, start, target) {
             return {visited, path};
         }
 
-        next.type = 4;
+        next.type = VISITED_NODE;
         visited.push(next);
         // reach target, stop
         if (next === target) {

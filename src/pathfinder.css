@@ -5,7 +5,7 @@
     font-family: 100% Verdana, Arial, Helvetica, sans-serif;
     width: 100%;
     height: 4em;
-    background: #07696d;
+    background: rgb(29, 167, 253);
 }
 
 .control-panel p {
@@ -15,43 +15,6 @@
     font-size: 36px;
     font-weight: 800;
     color: white;
-}
-
-.control-panel button {
-    height: 36px;
-    border-radius: 5px;
-    background: white;
-    border: 2px solid rgb(224, 64, 64);
-    margin-left: 10px;
-    font-size: 1em;
-    font-weight: 800;
-    color: #07696d;
-    outline: none;
-    cursor: pointer;
-}
-
-.control-panel .slider {
-    margin-left: 50px;
-    -webkit-appearance: none;
-    appearance: none;
-    width: 150px;
-    height: 12px;
-    background: white;
-    outline: none;
-    opacity: 1.0;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-    border-radius: 5px;
-}
-
-.control-panel .slider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Override default look */
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    background: turquoise;
-    border-radius: 50%;
-    cursor: pointer; 
 }
 
 .display-panel {
@@ -84,10 +47,10 @@
     background-color: rgb(245, 241, 7);
 }
 .display-panel p:nth-child(3)::before {
-    background-color: rgb(70, 58, 50);;
+    background-color: rgb(70, 58, 50);
 }
 .display-panel p:nth-child(4)::before {
-    background-color: rgb(9, 255, 0);;
+    background-color: rgb(9, 255, 0);
 }
 
 .grid-container {
