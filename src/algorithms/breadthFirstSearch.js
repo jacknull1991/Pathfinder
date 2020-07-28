@@ -1,9 +1,12 @@
+const START_NODE = 1;
+const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 
-export function bfs(grid, start, target) {
+export const breadthFirstSearch = (grid, start, target) => {
     const queue = [];
     const visited = [];
+    const path = [];
     queue.push(start);
 
     while (!!queue.length) {
@@ -17,6 +20,8 @@ export function bfs(grid, start, target) {
         if (next === target) {
             const path = [];
             getPath(target, path);
+            start.type = START_NODE;
+            target.type = TARGET_NODE;
             return {visited, path};
         }
 
@@ -39,6 +44,8 @@ export function bfs(grid, start, target) {
             queue.push(grid[row][col + 1]);
         }
     }
+    start.type = START_NODE;
+    return {visited, path};
 }
 
 function getPath(node, path) {

@@ -52,7 +52,7 @@
 }
 
 .node-visited {
-    animation-name: growshrink;
+    animation-name: popvisited;
     animation-duration: 1s;
     animation-timing-function: ease-out;
     animation-delay: 0;
@@ -62,7 +62,7 @@
     animation-play-state: running;
 }
 
-@keyframes growshrink {
+@keyframes popvisited {
     0% {
         transform: scale(0.3);
         background-color: rgb(64, 224, 117);

@@ -1,7 +1,9 @@
+const START_NODE = 1;
+const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 
-export function dijkstra(grid, start, target) {
+export const dijkstra = (grid, start, target) => {
     // this holds all nodes in the order we visited them
     const visited = [];
     start.distance = 0;
@@ -14,6 +16,7 @@ export function dijkstra(grid, start, target) {
         // cannot move anywhere, stop
         if (next.distance === Infinity) {
             const path = [];
+            start.type = START_NODE;
             return {visited, path};
         }
 
@@ -23,10 +26,15 @@ export function dijkstra(grid, start, target) {
         if (next === target) {
             const path = [];
             getShortestPath(target, path);
+            start.type = START_NODE;
+            target.type = TARGET_NODE;
             return {visited, path};
         }
         updateNeighbors(next, grid);
     }
+    const path = [];
+    start.type = START_NODE;
+    return {visited, path};
 }
 
 function getAllNodes(grid) {

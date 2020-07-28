@@ -1,20 +1,22 @@
 import React from 'react'
-import Node from './node'
+import Node from './Components/node'
 import Slider from './Components/slider'
 import Button from './Components/button'
 import './pathfinder.css'
-import * as dijkstra from './algorithms/dijkstra'
-import * as depthFirstSearch from './algorithms/depthFirstSearch'
-import * as breadthFirstSearch from './algorithms/breadthFirstSearch'
+import { dijkstra } from './algorithms/dijkstra'
+import { depthFirstSearch } from './algorithms/depthFirstSearch'
+import { breadthFirstSearch } from './algorithms/breadthFirstSearch'
+import { bidirectionBFS } from './algorithms/bidirectionBFS'
 
 // default variables
 const ROW_NUM = 20;
 const COL_NUM = 50;
 
-const START_ROW = 1;
-const START_COL = 1;
-const TARGET_ROW = 10;
-const TARGET_COL = 25;
+// default cell positions
+const START_ROW = 4;
+const START_COL = 14;
+const TARGET_ROW = 14;
+const TARGET_COL = 34;
 const walls = new Set();
 
 const EMPTY_NODE = 0;
@@ -24,7 +26,9 @@ const WALL_NODE = 3;
 const VISITED_NODE = 4;
 const PATH_NODE = 5;
 
-const ANIMATION_SPEED = 100;
+const ANIMATION_SPEED = 150;
+const MAX_SPEED = 200;
+const MIN_SPEED = 10;
 
 export default class Pathfinder extends React.Component {
     constructor(props) {
@@ -35,24 +39,21 @@ export default class Pathfinder extends React.Component {
             target: [TARGET_ROW, TARGET_COL], 
             mouseIsPressed: false,
             isAnimationRunning: false,
-            isMovingCell: false,
+            isMovingStart: false,
+            isMovingTarget: false,
             animation_speed: ANIMATION_SPEED,
         };
         this.refGrid = [];
 
         this.setAnimationSpeed = this.setAnimationSpeed.bind(this);
-        this.runDFS = this.runDFS.bind(this);
-        this.runBFS = this.runBFS.bind(this);
-        this.runDijkstra = this.runDijkstra.bind(this);
-        this.resetGrid = this.resetGrid.bind(this);
-
+        
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
     }
 
     setAnimationSpeed(speed) {
-        this.setState({animation_speed: 1000/speed});
+        this.setState({animation_speed: speed});
     }
 
     createNode(row, col, node_t = EMPTY_NODE) { 
@@ -86,7 +87,28 @@ export default class Pathfinder extends React.Component {
         return grid;
     }
 
-    // clear all walls & visited cells
+    // clear search results
+    resetPath() {
+        const grid = this.state.grid;
+        const newGrid = [];
+        for (let row = 0; row < ROW_NUM; row++) {
+            const currentRow = [];
+            for (let col = 0; col < COL_NUM; col++) {
+                if (grid[row][col].type === VISITED_NODE || grid[row][col].type === PATH_NODE) {
+                    currentRow.push(this.createNode(row, col, EMPTY_NODE));
+                    this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
+                }
+                else {
+                    currentRow.push(grid[row][col]);
+                }
+                    
+            }
+            newGrid.push(currentRow);
+        }
+        this.setState({grid: newGrid});
+    }
+
+    // clear all walls & visited cells and reset start/target position 
     resetGrid() {
         const grid = [];
         walls.clear();
@@ -170,7 +192,7 @@ export default class Pathfinder extends React.Component {
 
         this.setState({mouseIsPressed: true});
         // if click on empty/wall cell, generate wall cell
-        if (this.state.grid[row][col].type !== START_ROW && this.state.grid[row][col].type !== TARGET_NODE) {
+        if (this.state.grid[row][col].type !== START_NODE && this.state.grid[row][col].type !== TARGET_NODE) {
             
             if (walls.has(row * 50 + col)) {
                 walls.delete(row * 50 + col);
@@ -184,16 +206,18 @@ export default class Pathfinder extends React.Component {
         }
         // if click on start/target cell, move start/target cell with cursor
         else {
-            this.setState({isMovingCell: true});
+            if (this.state.grid[row][col].type === START_NODE)
+                this.setState({isMovingStart: true});
+            else
+                this.setState({isMovingTarget: true});
         }
     }
 
     handleMouseEnter(row, col) {
         if (!this.state.mouseIsPressed) return;
 
-        if (this.state.isMovingCell) {
+        if (this.state.isMovingStart) {
             // set previous start cell to empty; and update current cell to start cell
-            // TODO: should optimize this
             const [pre_row, pre_col] = this.state.start;
             this.setState({start: [row, col]}, () => {
                 this.moveCell(row, col, pre_row, pre_col, START_NODE);
@@ -201,16 +225,22 @@ export default class Pathfinder extends React.Component {
                 this.refGrid[row][col].current.updateNodeType(START_NODE);
             });
         }
+        else if (this.state.isMovingTarget) {
+            const [pre_row, pre_col] = this.state.target;
+            this.setState({target: [row, col]}, () => {
+                this.moveCell(row, col, pre_row, pre_col, TARGET_NODE);
+                this.refGrid[pre_row][pre_col].current.updateNodeType(EMPTY_NODE);
+                this.refGrid[row][col].current.updateNodeType(TARGET_NODE);
+            });
+        }
 
         else if (this.state.grid[row][col].type !== START_NODE && this.state.grid[row][col].type !== TARGET_NODE) {
             if (walls.has(row * 50 + col)) {
                 walls.delete(row * 50 + col);
-                //this.state.grid[row][col].type = EMPTY_NODE;
                 this.updateCellType(row, col, EMPTY_NODE);
                 this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
             } else {
                 walls.add(row * 50 + col);
-                //this.state.grid[row][col].type = WALL_NODE;
                 this.updateCellType(row, col, WALL_NODE);
                 this.refGrid[row][col].current.updateNodeType(WALL_NODE);
             }
@@ -218,8 +248,8 @@ export default class Pathfinder extends React.Component {
     }
 
     handleMouseUp() {
-        this.setState({mouseIsPressed: false, isMovingCell: false}, () => {
-            this.printGrid();
+        this.setState({mouseIsPressed: false, isMovingStart: false, isMovingTarget: false}, () => {
+            // this.printGrid();
         });
     }
 
@@ -235,92 +265,35 @@ export default class Pathfinder extends React.Component {
         }
     }
 
-    runDFS() {
-        if (this.state.isAnimationRunning) {
-            return;
-        }
-        this.setState({isAnimationRunning: true});
-        const {grid, start, target, animation_speed} = this.state;
-        const {visited, path} = depthFirstSearch.dfs(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]);
-        console.log(visited.length);
-        for (let i = 0; i < visited.length; i++) {
-            setTimeout(() => {
-                const node = visited[i];
-                if (i > 0 && i < visited.length - 1) {
-                    this.refGrid[node.row][node.col].current.updateNodeType(VISITED_NODE);
-                }
-                // show shortest path
-                if (i === visited.length - 1) {
-                    setTimeout(() => {
-                        if (path.length === 0) {
-                            // no path available, just stop
-                            this.setState({isAnimationRunning: false});
-                        } else {
-                            // pop path cells
-                            for (let j = 1; j < path.length - 1; j++) {
-                                const pathnode = path[j];
-                                setTimeout(() => {
-                                    this.refGrid[pathnode.row][pathnode.col].current.updateNodeType(PATH_NODE);
-                                    if (j === path.length - 2) {
-                                        this.setState({isAnimationRunning: false});
-                                    }
-                                }, j * animation_speed * 5)
-                            }
-                        }
-                    }, 500);
-                }
-            }, i * animation_speed);
-        }
-    }
+    runAlgo = (algo) => {
+        if (this.state.isAnimationRunning) return;
 
-    runBFS() {
-        if (this.state.isAnimationRunning) {
-            return;
-        }
         this.setState({isAnimationRunning: true});
-        const {grid, start, target, animation_speed} = this.state;
-        const {visited, path} = breadthFirstSearch.bfs(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]);
-        console.log(visited.length);
-        for (let i = 0; i < visited.length; i++) {
-            setTimeout(() => {
-                const node = visited[i];
-                if (i > 0 && i < visited.length - 1) {
-                    this.refGrid[node.row][node.col].current.updateNodeType(VISITED_NODE);
-                }
-                // show shortest path
-                if (i === visited.length - 1) {
-                    setTimeout(() => {
-                        if (path.length === 0) {
-                            // no path available, just stop
-                            this.setState({isAnimationRunning: false});
-                        } else {
-                            // pop path cells
-                            for (let j = 1; j < path.length - 1; j++) {
-                                const pathnode = path[j];
-                                setTimeout(() => {
-                                    this.refGrid[pathnode.row][pathnode.col].current.updateNodeType(PATH_NODE);
-                                    if (j === path.length - 2) {
-                                        this.setState({isAnimationRunning: false});
-                                    }
-                                }, j * animation_speed * 5)
-                            }
-                        }
-                    }, 500);
-                }
-            }, i * animation_speed);
+        const {grid, start, target} = this.state;
+        const animation_speed = 1000 / this.state.animation_speed;
+        let visited, path;
+        switch (algo) {
+            case 'dijkstra':
+                ({visited, path} = dijkstra(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]));
+                break;
+            case 'dfs':
+                ({visited, path} = depthFirstSearch(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]));
+                break;
+            case 'bfs':
+                ({visited, path} = breadthFirstSearch(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]));
+                break;
+            case 'bi-bfs':
+                ({visited, path} = bidirectionBFS(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]));
+                break;
+            default:
+                this.setState({isAnimationRunning: false});
+                return;
         }
-    }
 
-    runDijkstra() {
-        if (this.state.isAnimationRunning) {
-            return;
-        }
-        this.setState({isAnimationRunning: true});
-        const {grid, start, target, animation_speed} = this.state;
-        const {visited, path} = dijkstra.dijkstra(grid, grid[start[0]][start[1]], grid[target[0]][target[1]]);
         for (let i = 0; i < visited.length; i++) {
             setTimeout(() => {
                 const node = visited[i];
+                // TODO: change upper bound when path not found
                 if (i > 0 && i < visited.length - 1) {
                     this.refGrid[node.row][node.col].current.updateNodeType(VISITED_NODE);
                 }
@@ -346,6 +319,7 @@ export default class Pathfinder extends React.Component {
                 }
             }, i * animation_speed);
         }
+
     }
 
     render() {
@@ -360,17 +334,24 @@ export default class Pathfinder extends React.Component {
                 <button onClick={() => this.runDijkstra()}>Depth First Search</button>
                 <button onClick={() => this.runDijkstra()}>Bidirectional BFS</button> */}
                 {/* <button onClick={() => this.resetGrid()}>Reset Grid</button> */}
-                <Button text="Depth-first Search" onClick={this.runDFS}></Button>
-                <Button text="Breadth-first Search" onClick={this.runBFS}></Button>
-                <Button text="Dijkstra's Algorithm" onClick={this.runDijkstra}></Button>
-                <Button text="Reset Grid" onClick={this.resetGrid}></Button>
-                <Slider text="Animation Speed" value={animation_speed} onChange={this.setAnimationSpeed}></Slider>
-                {/* <input type="range" min="70" max="100" className="slider" defaultValue="95" onChange={(e) => this.setAnimationSpeed(e)}></input> */}
+                <div className="button-wrapper">
+                    <Button text="Depth-first Search" onClick={() => this.runAlgo('dfs')}></Button>
+                    <Button text="Breadth-first Search" onClick={() => this.runAlgo('bfs')}></Button>
+                    <Button text="Bidirectional Search" onClick={() => this.runAlgo('bi-bfs')}></Button>
+                    <Button text="Dijkstra's Algorithm" onClick={() => this.runAlgo('dijkstra')}></Button>
+
+                    <Button text="Reset Path" onClick={() => this.resetPath()}></Button>
+                    <Button text="Reset Grid" onClick={() => this.resetGrid()}></Button>    
+                </div>
+                <div className="slider-wrapper">   
+                    <Slider text="Animation Speed" min={MIN_SPEED} max={MAX_SPEED} value={animation_speed} onChange={this.setAnimationSpeed}></Slider>
+                </div>
             </div>
             <div className="display-panel">
                 <p>Start Cell</p>
                 <p>Target Cell</p>
                 <p>Block Cell (Click&Drag)</p>
+                <p>Visited Cell</p>
                 <p>Path/Shortest Path</p>
             </div>
             <div className="grid-container">

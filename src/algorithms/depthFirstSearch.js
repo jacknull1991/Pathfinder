@@ -1,9 +1,12 @@
+const START_NODE = 1;
+const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 
-export function dfs(grid, start, target) {
+export const depthFirstSearch = (grid, start, target) => {
     const stack = [];
     const visited = [];
+    const path = [];
     stack.push(start);
 
     while (!!stack.length) {
@@ -15,8 +18,9 @@ export function dfs(grid, start, target) {
         visited.push(next);
 
         if (next === target) {
-            const path = [];
             getPath(target, path);
+            start.type = START_NODE;
+            target.type = TARGET_NODE;
             return {visited, path};
         }
 
@@ -39,6 +43,8 @@ export function dfs(grid, start, target) {
             stack.push(grid[row][col + 1]);
         }
     }
+    start.type = START_NODE;
+    return {visited, path};
 }
 
 function getPath(node, path) {

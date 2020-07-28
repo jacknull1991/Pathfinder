@@ -1,4 +1,5 @@
 button {
+    display: inline-block;
     height: 36px;
     border-radius: 10px;
     background: white;
