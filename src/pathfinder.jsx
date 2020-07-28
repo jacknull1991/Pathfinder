@@ -2,6 +2,7 @@ import React from 'react'
 import Node from './Components/node'
 import Slider from './Components/slider'
 import Button from './Components/button'
+import Checkbox from './Components/checkbox'
 import './pathfinder.css'
 import { dijkstra } from './algorithms/dijkstra'
 import { depthFirstSearch } from './algorithms/depthFirstSearch'
@@ -25,6 +26,7 @@ const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 const PATH_NODE = 5;
+const WEIGHT_NODE = 6;
 
 const ANIMATION_SPEED = 150;
 const MAX_SPEED = 200;
@@ -41,11 +43,15 @@ export default class Pathfinder extends React.Component {
             isAnimationRunning: false,
             isMovingStart: false,
             isMovingTarget: false,
+            isAddingWall: false,
+            isAddingWeight: false,
             animation_speed: ANIMATION_SPEED,
         };
         this.refGrid = [];
 
         this.setAnimationSpeed = this.setAnimationSpeed.bind(this);
+        this.toggleWall = this.toggleWall.bind(this);
+        this.toggleWeight = this.toggleWeight.bind(this);
         
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
@@ -56,12 +62,13 @@ export default class Pathfinder extends React.Component {
         this.setState({animation_speed: speed});
     }
 
-    createNode(row, col, node_t = EMPTY_NODE) { 
+    createNode(row, col, node_t = EMPTY_NODE, weight = 0) { 
         return {
             row: row,
             col: col,
             type: node_t,
             distance: Infinity,
+            weight: weight,
             previous: null,
         };
     }
@@ -136,6 +143,10 @@ export default class Pathfinder extends React.Component {
         }
         else if (nextState.animation_speed !== this.state.animation_speed) {
             return false;
+        } 
+        else if (nextState.isAddingWall !== this.state.isAddingWall ||
+            nextState.isAddingWeight !== this.state.isAddingWeight) {
+            return false;
         }
         return true;
     }
@@ -143,12 +154,13 @@ export default class Pathfinder extends React.Component {
     // update individual cell to {type}; everything else remains unchanged
     updateCellType(row, col, type) {
         const newGrid = [];
+        const weight = type === WEIGHT_NODE ? 10 : 0;
         const grid = this.state.grid;
         for (let i = 0; i < grid.length; i++) {
             const currentRow = [];
             for (let j = 0; j < grid[0].length; j++) {
                 if (i === row && j === col) {
-                    currentRow.push(this.createNode(i, j, type));
+                    currentRow.push(this.createNode(i, j, type, weight));
                 } else {
                     currentRow.push(grid[i][j]);
                 }
@@ -182,6 +194,28 @@ export default class Pathfinder extends React.Component {
         });
     }
 
+    toggleWall(isAddingWall) {
+        if (this.state.isAddingWeight && isAddingWall) {
+            document.getElementById('toggle-wall').checked = false;
+            console.log("can't add both types of obstacles");
+        } else {
+            this.setState({isAddingWall: isAddingWall}, () => {
+                console.log('Current mode: wall ' + (isAddingWall ? 'on' : 'off'));
+            });
+        }
+    }
+
+    toggleWeight(isAddingWeight) {
+        if (this.state.isAddingWall && isAddingWeight) {
+            document.getElementById('toggle-weight').checked = false;
+            console.log("can't add both types of obstacles");
+        } else {
+            this.setState({isAddingWeight: isAddingWeight}, () => {
+                console.log('Current mode: weight ' + (isAddingWeight ? 'on' : 'off'));
+            });
+        }
+    }
+
     // use a set to keep track of all mouseovered nodes
     // and change state at mouseup
     handleMouseDown(row, col) {
@@ -193,15 +227,17 @@ export default class Pathfinder extends React.Component {
         this.setState({mouseIsPressed: true});
         // if click on empty/wall cell, generate wall cell
         if (this.state.grid[row][col].type !== START_NODE && this.state.grid[row][col].type !== TARGET_NODE) {
-            
+            // if neither button is pressed, return
+            if (!this.state.isAddingWall && !this.state.isAddingWeight) return;
             if (walls.has(row * 50 + col)) {
                 walls.delete(row * 50 + col);
                 this.updateCellType(row, col, EMPTY_NODE);
                 this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
             } else {
+                const addType = this.state.isAddingWall ? WALL_NODE : WEIGHT_NODE;
                 walls.add(row * 50 + col);
-                this.updateCellType(row, col, WALL_NODE);
-                this.refGrid[row][col].current.updateNodeType(WALL_NODE);
+                this.updateCellType(row, col, addType);
+                this.refGrid[row][col].current.updateNodeType(addType);
             }
         }
         // if click on start/target cell, move start/target cell with cursor
@@ -216,7 +252,7 @@ export default class Pathfinder extends React.Component {
     handleMouseEnter(row, col) {
         if (!this.state.mouseIsPressed) return;
 
-        if (this.state.isMovingStart) {
+        if (this.state.isMovingStart && this.state.grid[row][col].type !== TARGET_NODE) {
             // set previous start cell to empty; and update current cell to start cell
             const [pre_row, pre_col] = this.state.start;
             this.setState({start: [row, col]}, () => {
@@ -225,7 +261,7 @@ export default class Pathfinder extends React.Component {
                 this.refGrid[row][col].current.updateNodeType(START_NODE);
             });
         }
-        else if (this.state.isMovingTarget) {
+        else if (this.state.isMovingTarget && this.state.grid[row][col].type !== START_NODE) {
             const [pre_row, pre_col] = this.state.target;
             this.setState({target: [row, col]}, () => {
                 this.moveCell(row, col, pre_row, pre_col, TARGET_NODE);
@@ -235,14 +271,16 @@ export default class Pathfinder extends React.Component {
         }
 
         else if (this.state.grid[row][col].type !== START_NODE && this.state.grid[row][col].type !== TARGET_NODE) {
+            if (!this.state.isAddingWall && !this.state.isAddingWeight) return;
             if (walls.has(row * 50 + col)) {
                 walls.delete(row * 50 + col);
                 this.updateCellType(row, col, EMPTY_NODE);
                 this.refGrid[row][col].current.updateNodeType(EMPTY_NODE);
             } else {
+                const addType = this.state.isAddingWall ? WALL_NODE : WEIGHT_NODE;
                 walls.add(row * 50 + col);
-                this.updateCellType(row, col, WALL_NODE);
-                this.refGrid[row][col].current.updateNodeType(WALL_NODE);
+                this.updateCellType(row, col, addType);
+                this.refGrid[row][col].current.updateNodeType(addType);
             }
         }
     }
@@ -350,9 +388,11 @@ export default class Pathfinder extends React.Component {
             <div className="display-panel">
                 <p>Start Cell</p>
                 <p>Target Cell</p>
-                <p>Block Cell (Click&Drag)</p>
                 <p>Visited Cell</p>
                 <p>Path/Shortest Path</p>
+                {/* <p>Block Cell (Click&Drag)</p> */}
+                <Checkbox id="toggle-wall" text="Add Blocked Cell" onChange={this.toggleWall}></Checkbox>
+                <Checkbox id="toggle-weight" text="Add Weighted Cell" onChange={this.toggleWeight}></Checkbox>
             </div>
             <div className="grid-container">
                 {grid.map((row, rowIndex) => {

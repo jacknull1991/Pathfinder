@@ -1,0 +1,69 @@
+
+.checkbox-wrapper {
+    background-color: white;
+    border-radius: 0px;
+    overflow: hidden;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+.checkbox-wrapper label span {
+    text-align: center;
+    padding: 5px 5px;
+    display: flex;
+    cursor: pointer;
+}
+
+.checkbox-wrapper:hover  {
+    -webkit-box-shadow: 2px 2px 20px 7px rgba(0,0,0,0.55);
+    -moz-box-shadow: 2px 2px 20px 7px rgba(0,0,0,0.55);
+    box-shadow: 2px 2px 20px 7px rgba(0,0,0,0.55);
+}
+
+.checkbox-wrapper label span::before {
+    content: "";
+    display: block;
+    width: 26px;
+    height: 26px;
+    float: left;
+    margin: 0 6px 0 0;
+    box-sizing: border-box;
+    /* background-color: rgb(70, 58, 50); */
+}
+
+#toggle-wall-wrapper.checkbox-wrapper span::before {
+    background-color: rgb(70, 58, 50);
+}
+#toggle-weight-wrapper.checkbox-wrapper span::before {
+    background-color: purple;
+}
+
+.checkbox-wrapper label input {
+    position: absolute;
+    top: -20px;
+}
+
+.checkbox-wrapper input:checked + span {
+    color: white;
+    animation-name: buttonClicked;
+    animation-duration: .4s;
+    animation-timing-function: ease-out;
+    animation-delay: 0;
+    animation-direction: alternate;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+    animation-play-state: running;
+}
+
+@keyframes buttonClicked {
+    0% {
+        background-color: white;
+    }
+    100% {
+        background-color: rgb(29, 167, 253);
+    }
+}

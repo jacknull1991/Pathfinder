@@ -7,6 +7,7 @@ const TARGET_NODE = 2;
 const WALL_NODE = 3;
 const VISITED_NODE = 4;
 const PATH_NODE = 5;
+const WEIGHT_NODE = 6;
 
 export default class Node extends React.PureComponent {
     constructor(props) {
@@ -33,7 +34,8 @@ export default class Node extends React.PureComponent {
                           type === TARGET_NODE ? 'node-target' :
                           type === WALL_NODE ? 'node-wall' :
                           type === VISITED_NODE ? 'node-visited' :
-                          type === PATH_NODE ? 'node-path' : '';
+                          type === PATH_NODE ? 'node-path' : 
+                          type === WEIGHT_NODE ? 'node-weighted' : '';
 
 
         return <div id={`node-${row}-${col}`} 

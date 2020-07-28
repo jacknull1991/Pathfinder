@@ -59,12 +59,9 @@
     background-color: rgb(245, 241, 7);
 }
 .display-panel p:nth-child(3)::before {
-    background-color: rgb(70, 58, 50);
-}
-.display-panel p:nth-child(4)::before {
     background-color: rgb(64, 128, 224);
 }
-.display-panel p:nth-child(5)::before {
+.display-panel p:nth-child(4)::before {
     background-color: rgb(9, 255, 0);
 }
 
