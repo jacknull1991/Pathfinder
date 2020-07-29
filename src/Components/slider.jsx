@@ -7,7 +7,7 @@ export default function Slider(props) {
     return (
         <>
         <div className="slider-container">
-        <p className="slider-text">{props.text}</p>
+        <span className="slider-text">{props.text}</span>
         <input type="range" min={min} max={max} className="slider" 
             defaultValue={value} onChange={(e) => handleChange(e, props)}>
         </input>

@@ -8,6 +8,7 @@ import { dijkstra } from './algorithms/dijkstra'
 import { depthFirstSearch } from './algorithms/depthFirstSearch'
 import { breadthFirstSearch } from './algorithms/breadthFirstSearch'
 import { bidirectionBFS } from './algorithms/bidirectionBFS'
+import { createMazeArray } from './utility/mazeGen'
 
 // default variables
 const ROW_NUM = 20;
@@ -92,6 +93,31 @@ export default class Pathfinder extends React.Component {
             this.refGrid.push(refList);
         }
         return grid;
+    }
+
+    presetMaze() {
+        const maze = createMazeArray();
+        const newGrid = [];
+        let start_row, start_col, target_row, target_col;
+        for (let row = 0; row < ROW_NUM; row++) {
+            const currentRow = [];
+            for (let col = 0; col < COL_NUM; col++) {
+                const cell = maze[row * COL_NUM + col];
+                const cell_type = cell === 0 ? EMPTY_NODE : cell === 1 ? WALL_NODE : cell === 2 ? START_NODE : TARGET_NODE;
+                currentRow.push(this.createNode(row, col, cell_type));
+                this.refGrid[row][col].current.updateNodeType(cell_type);
+                if (cell === 2) {
+                    start_row = row;
+                    start_col = col;
+                }
+                else if (cell === 3) {
+                    target_row = row;
+                    target_col = col;
+                }
+            }
+            newGrid.push(currentRow);
+        }
+        this.setState({grid: newGrid, start: [start_row, start_col], target: [target_row, target_col]});
     }
 
     // clear search results
@@ -196,23 +222,19 @@ export default class Pathfinder extends React.Component {
 
     toggleWall(isAddingWall) {
         if (this.state.isAddingWeight && isAddingWall) {
-            document.getElementById('toggle-wall').checked = false;
-            console.log("can't add both types of obstacles");
+            document.getElementById('toggle-weight').checked = false;
+            this.setState({isAddingWall: isAddingWall, isAddingWeight: false});
         } else {
-            this.setState({isAddingWall: isAddingWall}, () => {
-                console.log('Current mode: wall ' + (isAddingWall ? 'on' : 'off'));
-            });
+            this.setState({isAddingWall: isAddingWall});
         }
     }
 
     toggleWeight(isAddingWeight) {
         if (this.state.isAddingWall && isAddingWeight) {
-            document.getElementById('toggle-weight').checked = false;
-            console.log("can't add both types of obstacles");
+            document.getElementById('toggle-wall').checked = false;
+            this.setState({isAddingWeight: isAddingWeight, isAddingWall: false});
         } else {
-            this.setState({isAddingWeight: isAddingWeight}, () => {
-                console.log('Current mode: weight ' + (isAddingWeight ? 'on' : 'off'));
-            });
+            this.setState({isAddingWeight: isAddingWeight});
         }
     }
 
@@ -367,17 +389,13 @@ export default class Pathfinder extends React.Component {
             <>
             <div className="control-panel">
                 <p>Pathfinder</p>
-                {/* <button onClick={() => this.runDijkstra()}>Dijkstra's Algorithm</button>
-                <button onClick={() => this.runDijkstra()}>Breadth First Search</button>
-                <button onClick={() => this.runDijkstra()}>Depth First Search</button>
-                <button onClick={() => this.runDijkstra()}>Bidirectional BFS</button> */}
-                {/* <button onClick={() => this.resetGrid()}>Reset Grid</button> */}
                 <div className="button-wrapper">
                     <Button text="Depth-first Search" onClick={() => this.runAlgo('dfs')}></Button>
                     <Button text="Breadth-first Search" onClick={() => this.runAlgo('bfs')}></Button>
                     <Button text="Bidirectional Search" onClick={() => this.runAlgo('bi-bfs')}></Button>
                     <Button text="Dijkstra's Algorithm" onClick={() => this.runAlgo('dijkstra')}></Button>
 
+                    <Button text="Add Maze!" onClick={() => this.presetMaze()}></Button>
                     <Button text="Reset Path" onClick={() => this.resetPath()}></Button>
                     <Button text="Reset Grid" onClick={() => this.resetGrid()}></Button>    
                 </div>
@@ -386,11 +404,10 @@ export default class Pathfinder extends React.Component {
                 </div>
             </div>
             <div className="display-panel">
-                <p>Start Cell</p>
-                <p>Target Cell</p>
-                <p>Visited Cell</p>
-                <p>Path/Shortest Path</p>
-                {/* <p>Block Cell (Click&Drag)</p> */}
+                <p id="start-cell-square">Start Cell</p>
+                <p id="target-cell-square">Target Cell</p>
+                <p id="visited-cell-square">Visited Cell</p>
+                <p id="path-cell-square">Path/Shortest Path</p>
                 <Checkbox id="toggle-wall" text="Add Blocked Cell" onChange={this.toggleWall}></Checkbox>
                 <Checkbox id="toggle-weight" text="Add Weighted Cell" onChange={this.toggleWeight}></Checkbox>
             </div>

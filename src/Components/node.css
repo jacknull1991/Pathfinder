@@ -40,17 +40,6 @@
     animation-play-state: running;
 }
 
-.node-wall {
-    animation-name: popwalls;
-    animation-duration: .4s;
-    animation-timing-function: ease-out;
-    animation-delay: 0;
-    animation-direction: alternate;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    animation-play-state: running;
-}
-
 .node-visited {
     animation-name: popvisited;
     animation-duration: 1s;
@@ -62,16 +51,21 @@
     animation-play-state: running;
 }
 
-.node-weighted {
-    /* animation-name: popvisited;
-    animation-duration: 1s;
+.node-weighted, .node-wall {
+    animation-name: popwalls;
+    animation-duration: .4s;
     animation-timing-function: ease-out;
     animation-delay: 0;
     animation-direction: alternate;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
-    animation-play-state: running; */
-    background-color: crimson;
+    animation-play-state: running;
+}
+.node-wall {
+    background-color: rgb(70, 58, 50)
+}
+.node-weighted {
+    background-color: purple;
 }
 
 @keyframes popvisited {
@@ -96,14 +90,12 @@
 @keyframes popwalls {
     0% {
         transform: scale(1.0);
-        background-color: rgb(70, 58, 50);
     }
     75% {
         transform: scale(1.2);
     }
     100% {
         transform: scale(1.0);
-        background-color: rgb(70, 58, 50);
     }
 }
 

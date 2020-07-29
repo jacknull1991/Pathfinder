@@ -52,16 +52,16 @@
     margin: 0 6px 0 0;
     box-sizing: border-box;
 }
-.display-panel p:nth-child(1)::before {
+.display-panel p#start-cell-square::before {
     background-color: lightcoral;
 }
-.display-panel p:nth-child(2)::before {
+.display-panel p#target-cell-square::before {
     background-color: rgb(245, 241, 7);
 }
-.display-panel p:nth-child(3)::before {
+.display-panel p#visited-cell-square::before {
     background-color: rgb(64, 128, 224);
 }
-.display-panel p:nth-child(4)::before {
+.display-panel p#path-cell-square::before {
     background-color: rgb(9, 255, 0);
 }
 
