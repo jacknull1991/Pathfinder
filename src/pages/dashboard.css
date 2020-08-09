@@ -1,0 +1,25 @@
+.dashboard-container {
+    margin: 0;
+    padding: 20px;;
+    box-sizing: border-box;
+    font-family: 100% Verdana, Arial, Helvetica, sans-seri;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #eee;
+    /* background: linear-gradient(45deg, rgb(94, 94, 94), #fff); */
+    position: relative;
+    flex-wrap: wrap;
+}
+
+
+.dashboard-container .card:nth-child(1) .card-image {
+    background: url(../resources/path.png);
+    background-size: 100%;
+}
+
+.dashboard-container .card:nth-child(2) .card-image {
+    background: url(../resources/sort.png);
+    background-size: 100%;
+}

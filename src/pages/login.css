@@ -1,0 +1,136 @@
+.login-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(240, 236, 236);
+}
+
+.panel-login {
+    position: fixed;
+    top: 30%;
+	background-color: white;
+    width: 400px;
+    padding: 14px;
+    border-color: #ccc;
+    border-radius: 5px;
+	-webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+}
+.panel-login .panel-header {
+	color: #00415d;
+	background-color: #fff transparent;
+	border-color: #fff;
+	text-align: center;
+}
+.panel-login .panel-header::before {
+	position: absolute;
+	left: 15px;
+	top: 18px;	
+	content: '';
+	background: url('../resources/target-icon.jpg') no-repeat;
+	background-size: contain;
+	width: 30px;
+	height: 40px;
+}	
+
+.panel-login .panel-header a{
+	text-decoration: none;
+	color: #666;
+	font-weight: bold;
+	font-size: 15px;
+	-webkit-transition: all 0.1s linear;
+	-moz-transition: all 0.1s linear;
+	transition: all 0.1s linear;
+}
+.panel-login .panel-header a.active{
+	color: #029f5b;
+	/* font-size: 18px; */
+}
+
+.panel-login .panel-header hr {
+	margin-top: 10px;
+	margin-bottom: 15px;
+	clear: both;
+	border: 0;
+	height: 1px;
+	background: -webkit-linear-gradient(90deg,rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.2),rgba(0, 0, 0, 0));
+    background: -moz-linear-gradient(90deg,rgba(0, 0, 0, 0),rgba(0,0,0,0.2),rgba(0,0,0,0));
+    background: linear-gradient(90deg,rgba(0, 0, 0, 0),rgba(0,0,0,0.2),rgba(0,0,0,0));
+}
+
+.panel-login .panel-body {
+	background-color: transparent;
+}
+
+.panel-login .panel-body .form-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+.panel-login .panel-body .form-group .form-control {
+    width: 100%;
+    line-height: 34px;
+    display: block;
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+}
+.panel-login .panel-body .form-group .form-control:focus {
+    border-color: rgb(102, 175, 233);
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+}
+
+.panel-login .panel-body p.panel-message {
+    color: red;
+}
+
+.panel-login .panel-body .form-group .btn {
+    display: inline-block;
+    font-weight: 400;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.43;
+    border-radius: 4px;
+    user-select: none;
+}
+.panel-login .panel-body .form-group .btn:active {
+    outline: 0;
+}
+
+.panel-login .panel-body .form-group .btn.btn-primary {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+.panel-login .panel-body .form-group .btn.btn-primary:hover {
+    color: #fff;
+    background-color: #286090;
+    border-color: #204d74;
+}
+.panel-login .panel-body .form-group .btn.btn-success {
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
+.panel-login .panel-body .form-group .btn.btn-success:hover {
+    color: #fff;
+    background-color: #4a994a;
+    border-color: #4a994a;
+}
+.panel-login .panel-body .form-group .btn.btn-block {
+    width: 100%;
+}
+
+

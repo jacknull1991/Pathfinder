@@ -7,7 +7,6 @@ const { userProfileValidation, loginValidation } = require('../utils/validation'
 
 // Login
 router.post('/login', async (req, res) => {
-    console.log('Someone wants to login...');
     // VALIDATE THE USER
     const { error } = loginValidation(req.body);
 
@@ -26,7 +25,10 @@ router.post('/login', async (req, res) => {
 
     // Create and assign a token
     const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);
-    res.header('auth-token', token).send(token);
+    res.header('auth-token', token).json({
+        user: user,
+        token: token
+    });
 });
 
 // User registration
@@ -56,7 +58,10 @@ router.post('/register', async (req, res) => {
     });
 
     newUser.save()
-        .then((user) => res.json(user))
+        .then((user) => res.json({
+            user: user,
+            message: 'Registration completed!'
+        }))
         .catch(err => res.status(400).json('Error: ' + err));
     // TODO: redirect
 

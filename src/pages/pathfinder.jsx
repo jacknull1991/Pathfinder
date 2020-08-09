@@ -1,14 +1,14 @@
 import React from 'react'
-import Node from './components/node'
-import Slider from './components/slider'
-import Button from './components/button'
-import Checkbox from './components/checkbox'
+import Node from '../components/node'
+import Slider from '../components/slider'
+import Button from '../components/button'
+import Checkbox from '../components/checkbox'
 import './pathfinder.css'
-import { dijkstra } from './algorithms/dijkstra'
-import { depthFirstSearch } from './algorithms/depthFirstSearch'
-import { breadthFirstSearch } from './algorithms/breadthFirstSearch'
-import { bidirectionBFS } from './algorithms/bidirectionBFS'
-import { createMazeArray } from './utility/mazeGen'
+import { dijkstra } from '../algorithms/dijkstra'
+import { depthFirstSearch } from '../algorithms/depthFirstSearch'
+import { breadthFirstSearch } from '../algorithms/breadthFirstSearch'
+import { bidirectionBFS } from '../algorithms/bidirectionBFS'
+import { createMazeArray } from '../utils/mazeGen'
 
 // default variables
 const ROW_NUM = 20;
@@ -382,6 +382,11 @@ export default class Pathfinder extends React.Component {
 
     }
 
+    logout() {
+        localStorage.clear();
+        window.location = "/";
+    }
+
     render() {
         const {grid, animation_speed} = this.state;
         console.log("Page rendered");
@@ -397,7 +402,8 @@ export default class Pathfinder extends React.Component {
 
                     <Button text="Add Maze!" onClick={() => this.presetMaze()}></Button>
                     <Button text="Reset Path" onClick={() => this.resetPath()}></Button>
-                    <Button text="Reset Grid" onClick={() => this.resetGrid()}></Button>    
+                    <Button text="Reset Grid" onClick={() => this.resetGrid()}></Button>   
+                    <Button text="Logout" onClick={() => this.logout()}></Button>   
                 </div>
                 <div className="slider-wrapper">   
                     <Slider text="Animation Speed" min={MIN_SPEED} max={MAX_SPEED} value={animation_speed} onChange={this.setAnimationSpeed}></Slider>

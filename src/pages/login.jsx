@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import './login.css';
 
+
 export default class Login extends React.Component {
     constructor(props) {
         super(props);
@@ -54,7 +55,10 @@ export default class Login extends React.Component {
 
         axios.post('http://localhost:8000/api/user/login', user)
             .then(res => {
-                window.location = '/pathfinder';
+                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('username', res.data.user.username);
+                localStorage.setItem('email', res.data.user.email);
+                window.location = "/";
             })
             .catch(err => {
                 if (err.response) { // handle with server response
@@ -66,6 +70,21 @@ export default class Login extends React.Component {
 
     onSubmitRegister(e) {
         e.preventDefault();
+        const newUser = {
+            username: this.state.username,
+            email: this.state.email,
+            password: this.state.password
+        };
+
+        axios.post('http://localhost:8000/api/user/register', newUser)
+            .then(res => {
+                this.setState({errorMsg: res.data.message, isLoginForm: true});
+            })
+            .catch(err => {
+                if (err.response) { // handle with server response
+                    this.setState({errorMsg: err.response.data});
+                }
+            });
     }
 
     render() {

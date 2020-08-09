@@ -16,7 +16,6 @@ export const bidirectionBFS = (grid, start, target) => {
     visited1.set(start, 0);
     visited2.set(target, 0);
     // visited.push(start);
-    const n = grid[0].length;
 
     while (queue1.length > 0 || queue2.length > 0) {
         if (queue1.length > 0) {
