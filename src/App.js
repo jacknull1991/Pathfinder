@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import Pathfinder from './pages/pathfinder';
+import Sorter from './pages/sorter';
 import Login from './pages/login';
 import Dashboard from './pages/dashboard'
 
@@ -26,6 +27,13 @@ function App() {
                     <Redirect to="/login" />
                 ) : (
                     <Pathfinder />
+                )
+            )}/>
+            <Route exact path="/sorter" render={() => (
+                !isLoggedIn() ? (
+                    <Redirect to="/login" />
+                ) : (
+                    <Sorter />
                 )
             )}/>
         </Router>

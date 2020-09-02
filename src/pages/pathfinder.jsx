@@ -392,6 +392,7 @@ export default class Pathfinder extends React.Component {
         console.log("Page rendered");
         return (
             <>
+            {/* TODO: Extract this panel as a react component */}
             <div className="control-panel">
                 <p>Pathfinder</p>
                 <div className="button-wrapper">

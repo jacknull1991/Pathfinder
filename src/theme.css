@@ -1,6 +1,6 @@
   :root {
-    --mainTheme: rgb(29, 167, 253);
-    --secondaryTheme: rgb(245, 241, 7);
+    --mainTheme: #1da7fd;
+    --secondaryTheme: #282c34;
 
     --mainText: white;
     --secondaryText: #4b5156;

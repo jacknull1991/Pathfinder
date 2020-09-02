@@ -13,7 +13,7 @@ export default function Dashboard(props) {
             
             <Card
                 title="SORTING" 
-                path="/sorting"
+                path="/sorter"
                 text="Visualize common comparison based sorting algorithms in action. Who doesn't like sorting?"/>
 
             <Card
